@@ -1,0 +1,39 @@
+\chapter{实验}
+\label{chap4}
+
+\section{实验设计}
+我们的实验主要分为两部分：
+\begin{itemize}
+    \item 与OpenMPI对比，测试我们设计的Allreduce算法的性能。
+    \item 将我们的算法移植至深度学习框架，使用真实数据集进行分布式训练，测试训练性能。
+\end{itemize}
+
+为了测试我们的Allreduce算法的性能，我们实现了一个简单的MPI库---SMPI。SMPI内实现了多种MPI原语：
+\begin{itemize}
+    \item MPI\_Send()
+    \item MPI\_Recv()
+    \item MPI\_Sendrecv()
+    \item Barrier()
+    \item Allreduce()
+\end{itemize}
+
+SMPI支持两种模式：普通模式与智能网卡模式。处于智能网卡模式下的SMPI，在Allreduce算法的开始会先在主机端中央处理器进行第k大梯度选择并将梯度矩阵压缩为稀疏矩阵格式，再将稀疏矩阵传送至智能网卡；之后的每轮通信都发生在各个智能网卡之间，同时，稀疏矩阵加法也在智能网卡上进行；所有轮次的通信结束后，智能网卡将稀疏矩阵重新发回至主机端中央处理器并将稀疏矩阵重新解压缩为梯度矩阵，继续进行反向传播算法。处于普通模式下的SMPI，则没有那么复杂，所有计算都是在主机端中央处理器进行的，网卡仅用于通信，且主机端并不需要与网卡显示通信，换句话说，网卡对于普通模式下的SMPI而言是透明的。
+
+目前，SMPI只支持使用TCP进行通信。
+
+我们使用了OpenMPI作为基线与SMPI进行对比。OpenMPI支持使用TCP或RDMA进行通信。
+
+在这之后，我们使用深度学习框架Pytorch，将我们的算法移植至Pytorch的后端---Gloo\footnote{Gloo是facebook的一个孵化项目，也是Caffe2与Pytorch的官方后端。Gloo的源代码在以下网址：https://github.com/facebookincubator/gloo。}，并选择了几个神经网络模型，输入真实的数据集进行分布式训练以测试我们的Allreduce算法所带来的分布式训练的性能提升。
+
+我们的SMPI代码与移植后的Gloo代码都已开源\footnote{SMPI的代码位于https://github.com/sth1997/smpi，移植后的Gloo代码位于https://github.com/sth1997/gloo。}。
+
+\section{实验平台}
+本次实验使用了8台服务器，每台服务器的中有2个Intel XeonE5-2670 v3 处理器，每个中央处理器有12个物理核心，其主频为2.3GHz，并支持超线程技术，共有24线程。每台服务器拥有128GB内存。
+
+8台服务器所组成的集群使用1000Mb Ethernet与100Gb Infiniband连接。
+
+服务器中安装的操作系统为Ubuntu 16.04.4 LTS。实验中使用的OpenMPI版本为4.0.0，使用的Pytorch版本为1.2.0a0+81e70ff，使用的Gloo版本为0.5.0。
+
+我们所使用的智能网卡为Mellanox BlueField，它上面有2个25Gb Ethernet SFP28 接口，16GB主板上的内存，以及1个具有8个物理核心的Armv8 A72 中央处理器。
+
+\section{实验结果及分析}
