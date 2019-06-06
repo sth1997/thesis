@@ -4,7 +4,7 @@
 \section{实验设计}
 我们的实验主要分为两部分：
 \begin{itemize}
-    \item 与OpenMPI对比，测试我们设计的Allreduce算法的性能。
+    \item 与Open MPI对比，测试我们设计的Allreduce算法的性能。
     \item 将我们的算法移植至深度学习框架，使用真实数据集进行分布式训练，测试训练性能。
 \end{itemize}
 
@@ -21,7 +21,7 @@ SMPI支持两种模式：普通模式与智能网卡模式。处于智能网卡�
 
 目前，SMPI只支持使用TCP进行通信。
 
-我们使用了OpenMPI作为基线与SMPI进行对比。OpenMPI支持使用TCP或RDMA进行通信。
+我们使用了Open MPI作为基线与SMPI进行对比。Open MPI支持使用TCP或RDMA进行通信。
 
 在这之后，我们使用深度学习框架Pytorch，将我们的算法移植至Pytorch的后端---Gloo\footnote{Gloo是facebook的一个孵化项目，也是Caffe2与Pytorch的官方后端。Gloo的源代码在以下网址：https://github.com/facebookincubator/gloo。}，并选择了几个神经网络模型，输入真实的数据集进行分布式训练以测试我们的Allreduce算法所带来的分布式训练的性能提升。
 
@@ -36,9 +36,12 @@ SMPI支持两种模式：普通模式与智能网卡模式。处于智能网卡�
 
 8台服务器所组成的集群使用1000Mb Ethernet与100Gb Infiniband连接。
 
-服务器中安装的操作系统为Ubuntu 16.04.4 LTS。实验中使用的OpenMPI版本为4.0.0，使用的Pytorch版本为1.2.0a0+81e70ff，使用的Gloo版本为0.5.0。
+服务器中安装的操作系统为Ubuntu 16.04.4 LTS。实验中使用的Open MPI版本为4.0.0，使用的Pytorch版本为1.2.0a0+81e70ff，使用的Gloo版本为0.5.0。
 
 我们所使用的智能网卡为Mellanox BlueField，它上面有2个25Gb Ethernet SFP28 接口，16GB主板上的内存，以及1个具有8个物理核心的Armv8 A72 中央处理器。
 
 \section{实验结果及分析}
 \subsection{SMPI Allreduce性能测试}
+
+\subsection{Pytorch 分布式训练性能测试}
+由于Pytorch目前使用Gloo作为后端时不支持Infiniband\footnote{https://github.com/pytorch/pytorch/issues/14438}，所以我们只用了1000Mb Ethernet进行测试。
