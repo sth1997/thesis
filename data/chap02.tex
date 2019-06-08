@@ -11,7 +11,7 @@
     \item 模型并行是指每台机器上都有一部分模型，不同机器负责不同部分的模型的计算。比如，以层为单位将神经网络分割并分配给不同的机器。
 \end{itemize}
 
-一般而言，数据并行是分布式训练的首选并行计算方法，因为数据并行不仅仅更容易实现，而且拥有更高的性能。因为神经网络的训练过程中数据有将强的依赖性，后面的层需要以前面的层的结果作为输入，所以模型并行的性能会稍差一些。本文主要关注数据并行。
+一般而言，数据并行是分布式训练的首选并行计算方法，因为数据并行不仅仅更容易实现，而且一般拥有更高的性能。本文主要关注数据并行。
 
 数据并行的分布式训练需要在各个机器上的模型之间同步参数，其方法有很多种，我们只介绍最常见的一种同步方式---使用Allreduce算法进行模型参数的同步。
 
@@ -37,7 +37,7 @@
 
 \section{模型裁剪}
 
-相对于使用一台机器进行训练，分布式训练确实可以加速模型收敛，但是它的并行效率并不高，因为分布式训练需要进行Allreduce过程，而对于参数比较多的大模型而言，所有参数都需要输入Allreduce算法进行通信，因为网络带宽的限制，通信开销会非常大~\cite{li2014communication, wen2017terngrad}。
+相对于使用一台机器进行训练，分布式训练确实可以加速模型收敛，但是它的并行效率并不高，因为分布式训练需要调用Allreduce算法，而对于参数比较多的大模型而言，所有参数都需要输入Allreduce算法进行通信，由于网络带宽的限制，通信开销会非常大~\cite{li2014communication, wen2017terngrad}。
 
 为了减少分布式训练中的通信时间，除了可以使用带宽更高的网络设备之外，还可以通过模型裁剪，减少通信量，以达到减少通信时间的效果。
 
@@ -46,11 +46,12 @@
 我们的工作是基于Yujun Lin等人的工作~\cite{lin2017deep}，他们的研究表明，只需要将最重要的（也就是绝对值最大的）0.1\%的梯度进行通信，并配合动量修正和局部梯度裁剪，就能在大幅度降低通信量的基础上保持模型精度不变。
 
 \section{MPI与Allreduce算法}
+\label{section:MPI-Allreduce}
 MPI的全称是Message Passing Interface，即消息传递接口，它是为高性能的大规模并行机器和工作站集群而设计的。MPI是一种标准接口，它有很多种实现，比如MPICH\footnote{http://www.mpich.org}和Open MPI\footnote{https://www.open-mpi.org}。MPI中包含很多原语，接下来介绍几种最基本且在神经网络分布式训练中需要用到的原语：
 \begin{itemize}
     \item MPI\_Send与MPI\_Isend：通信集合中的一个进程向另一个进程发送消息。其中，MPI\_Send为阻塞式通信，而MPI\_Isend为非阻塞式通信。
     \item MPI\_Recv与MPI\_Irecv：通信集合中的一个进程从另一个进程接收消息。其中，MPI\_Recv为阻塞式通信，而MPI\_Irecv为非阻塞式通信。
-    \item MPI\_Sendrecv：通信集合中的一个进程向另一个进程发送消息，并从另一个进程接收消息。注意，
+    \item MPI\_Sendrecv：通信集合中的一个进程向另一个进程发送消息，并从另一个进程接收消息。
     \item MPI\_Barrier：阻塞程序继续执行直到通信集合中的所有进程都调用了这个函数。
     %可以加一个bcast的图
     \item MPI\_Bcast：通信集合中的一个进程向其他所有进程广播消息。
@@ -64,12 +65,27 @@ Allreduce算法有多种实现方式，我们只介绍两种最常见的Allreduc
 
 %放一个环形算法的图
 %放一个蝶形算法的图
-$\sum_{i = 1}^n a_i$
-环形算法与蝶形算法的示意图如图xxxx。环形算法具有通信总量少的优点，而蝶形算法具有通信轮数少的优点。两种算法的对比如表\ref{tab:Allreduce}所示。
+
+\begin{figure}[ht] % use float package if you want it here
+    \centering
+    \includegraphics[width = 15cm]{ring-allreduce.png}
+    \caption{环形Allreduce算法}
+    \label{fig:ring-allreduce}
+\end{figure}
+
+\begin{figure}[ht] % use float package if you want it here
+    \centering
+    \includegraphics[width = 15cm]{butterfly-allreduce.png}
+    \caption{蝶形Allreduce算法}
+    \label{fig:butter-allreduce}
+\end{figure}
+
+
+环形算法与蝶形算法的示意图分别如图\ref{fig:ring-allreduce}和图\ref{fig:butter-allreduce}所示，其中，$sum_{l,r}$表示$\sum_{i = l}^r a_i$。环形算法具有通信总量少的优点，而蝶形算法具有通信轮数少的优点。两种算法的对比如表\ref{tab:Allreduce}所示。
 
 \begin{table}[htb]
     \centering
-    \caption[不同Allreduce算法对比]{不同Allreduce算法对比。\texttt{P}为进程数，\texttt{L}为缓冲区长度。通信量既包括发送又包括接收。只考虑P为2的整数次幂的情况。}
+    \caption[环形算法与蝶形算法对比]{环形算法与蝶形算法对比。P为进程数，L为缓冲区长度。通信量既包括发送量又包括接收量。只考虑P为2的整数次幂的情况。}
     \label{tab:Allreduce}
     \begin{tabularx}{\linewidth}{lXXX}
         \toprule[1.5pt]
@@ -91,9 +107,27 @@ $\sum_{i = 1}^n a_i$
 
 
 \makeatletter
-\def\BState{\State\hskip-\ALG@thistlm}
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
 \makeatother
-\begin{algorithm}
+%\begin{algorithm}[H]
+\begin{breakablealgorithm}
 \begin{algorithmic}[1]
 \Procedure{RANDOMIZED-SELECT}{$a, l, r, k$}
 \State $k \gets r - l - k + 2$
@@ -115,14 +149,33 @@ $\sum_{i = 1}^n a_i$
 \EndIf
 \EndProcedure
 \end{algorithmic}
-\end{algorithm}
+%\end{algorithm}
+\end{breakablealgorithm}
 
 随机算法中调用了RANDOMIZED-PARTITION函数，它的作用是随机选择a[l..r]中的一个元素作为关键字，将比关键字小的元素都放在关键字左侧（下标小于关键字所在下标），其余元素放在右侧（下标大于关键字所在下标）。其伪代码如下所示，其中，RANDOM(i,j)表示从区间[i,j]中随机选取一个整数，SWAP(a[i], a[j])表示交换a[i]和a[j]的值.
 
 \makeatletter
-\def\BState{\State\hskip-\ALG@thistlm}
+\newenvironment{breakablealgorithm2}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
 \makeatother
-\begin{algorithm}
+%\begin{algorithm}[H]
+\begin{breakablealgorithm}
 \begin{algorithmic}[1]
 \Procedure{RANDOMIZED-PARTITION}{$a, l, r$}
 \State $i \gets$ \Call{RANDOM}{$l, r$}
@@ -139,7 +192,8 @@ $\sum_{i = 1}^n a_i$
 \State \Return $i + 1$
 \EndProcedure
 \end{algorithmic}
-\end{algorithm}
+%\end{algorithm}
+\end{breakablealgorithm}
 
 \section{智能网卡}
 智能网卡与标准网卡的主要区别在于智能网卡有相对较强的计算能力，它可以从主机端处理器卸载计算量。标准网卡的功能只有收发数据包、帧的拆封与封装等；而对于智能网卡而言，程序员可以在上面编程，使网卡可以处理更复杂的计算。
