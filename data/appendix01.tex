@@ -1,263 +1,96 @@
-\chapter{外文资料原文}
-\label{cha:engorg}
-
-\title{The title of the English paper}
-
-\textbf{Abstract:} As one of the most widely used techniques in operations
-research, \emph{ mathematical programming} is defined as a means of maximizing a
-quantity known as \emph{bjective function}, subject to a set of constraints
-represented by equations and inequalities. Some known subtopics of mathematical
-programming are linear programming, nonlinear programming, multiobjective
-programming, goal programming, dynamic programming, and multilevel
-programming$^{[1]}$.
-
-It is impossible to cover in a single chapter every concept of mathematical
-programming. This chapter introduces only the basic concepts and techniques of
-mathematical programming such that readers gain an understanding of them
-throughout the book$^{[2,3]}$.
-
-
-\section{Single-Objective Programming}
-The general form of single-objective programming (SOP) is written
-as follows,
-\begin{equation*} % 如果附录中的公式不想让它出现在公式索引中，那就请
-                             % 用 equation*
-\left\{\begin{array}{l}
-\max \,\,f(x)\\[0.1 cm]
-\mbox{subject to:} \\ [0.1 cm]
-\qquad g_j(x)\le 0,\quad j=1,2,\cdots,p
-\end{array}\right.
-\end{equation*}
-which maximizes a real-valued function $f$ of
-$x=(x_1,x_2,\cdots,x_n)$ subject to a set of constraints.
-
-\newcommand\Real{\mathbf{R}}
-\newtheorem{mpdef}{Definition}[chapter]
-\begin{mpdef}
-In SOP, we call $x$ a decision vector, and
-$x_1,x_2,\cdots,x_n$ decision variables. The function
-$f$ is called the objective function. The set
-\begin{equation*}
-S=\left\{x\in\Real^n\bigm|g_j(x)\le 0,\,j=1,2,\cdots,p\right\}
-\end{equation*}
-is called the feasible set. An element $x$ in $S$ is called a
-feasible solution.
-\end{mpdef}
-
-\newtheorem{mpdefop}[mpdef]{Definition}
-\begin{mpdefop}
-A feasible solution $x^*$ is called the optimal
-solution of SOP if and only if
-\begin{equation}
-f(x^*)\ge f(x)
-\end{equation}
-for any feasible solution $x$.
-\end{mpdefop}
-
-One of the outstanding contributions to mathematical programming was known as
-the Kuhn-Tucker conditions\ref{eq:ktc}. In order to introduce them, let us give
-some definitions. An inequality constraint $g_j(x)\le 0$ is said to be active at
-a point $x^*$ if $g_j(x^*)=0$. A point $x^*$ satisfying $g_j(x^*)\le 0$ is said
-to be regular if the gradient vectors $\nabla g_j(x)$ of all active constraints
-are linearly independent.
-
-Let $x^*$ be a regular point of the constraints of SOP and assume that all the
-functions $f(x)$ and $g_j(x),j=1,2,\cdots,p$ are differentiable. If $x^*$ is a
-local optimal solution, then there exist Lagrange multipliers
-$\lambda_j,j=1,2,\cdots,p$ such that the following Kuhn-Tucker conditions hold,
-\begin{equation}
-\label{eq:ktc}
-\left\{\begin{array}{l}
-    \nabla f(x^*)-\sum\limits_{j=1}^p\lambda_j\nabla g_j(x^*)=0\\[0.3cm]
-    \lambda_jg_j(x^*)=0,\quad j=1,2,\cdots,p\\[0.2cm]
-    \lambda_j\ge 0,\quad j=1,2,\cdots,p.
-\end{array}\right.
-\end{equation}
-If all the functions $f(x)$ and $g_j(x),j=1,2,\cdots,p$ are convex and
-differentiable, and the point $x^*$ satisfies the Kuhn-Tucker conditions
-(\ref{eq:ktc}), then it has been proved that the point $x^*$ is a global optimal
-solution of SOP.
-
-\subsection{Linear Programming}
-\label{sec:lp}
-
-If the functions $f(x),g_j(x),j=1,2,\cdots,p$ are all linear, then SOP is called
-a {\em linear programming}.
-
-The feasible set of linear is always convex. A point $x$ is called an extreme
-point of convex set $S$ if $x\in S$ and $x$ cannot be expressed as a convex
-combination of two points in $S$. It has been shown that the optimal solution to
-linear programming corresponds to an extreme point of its feasible set provided
-that the feasible set $S$ is bounded. This fact is the basis of the {\em simplex
-  algorithm} which was developed by Dantzig as a very efficient method for
-solving linear programming.
-\begin{table}[ht]
-\centering
-  \centering
-  \caption*{Table~1\hskip1em This is an example for manually numbered table, which
-    would not appear in the list of tables}
-  \label{tab:badtabular2}
-  \begin{tabular}[c]{|m{1.5cm}|c|c|c|c|c|c|}\hline
-    \multicolumn{2}{|c|}{Network Topology} & \# of nodes &
-    \multicolumn{3}{c|}{\# of clients} & Server \\\hline
-    GT-ITM & Waxman Transit-Stub & 600 &
-    \multirow{2}{2em}{2\%}&
-    \multirow{2}{2em}{10\%}&
-    \multirow{2}{2em}{50\%}&
-    \multirow{2}{1.2in}{Max. Connectivity}\\\cline{1-3}
-    \multicolumn{2}{|c|}{Inet-2.1} & 6000 & & & &\\\hline
-    \multirow{2}{1.5cm}{Xue} & Rui  & Ni &\multicolumn{4}{c|}{\multirow{2}*{\thuthesis}}\\\cline{2-3}
-    & \multicolumn{2}{c|}{ABCDEF} &\multicolumn{4}{c|}{} \\\hline
-\end{tabular}
-\end{table}
-
-Roughly speaking, the simplex algorithm examines only the extreme points of the
-feasible set, rather than all feasible points. At first, the simplex algorithm
-selects an extreme point as the initial point. The successive extreme point is
-selected so as to improve the objective function value. The procedure is
-repeated until no improvement in objective function value can be made. The last
-extreme point is the optimal solution.
-
-\subsection{Nonlinear Programming}
-
-If at least one of the functions $f(x),g_j(x),j=1,2,\cdots,p$ is nonlinear, then
-SOP is called a {\em nonlinear programming}.
-
-A large number of classical optimization methods have been developed to treat
-special-structural nonlinear programming based on the mathematical theory
-concerned with analyzing the structure of problems.
-\begin{figure}[h]
-  \centering
-  \includegraphics{thu-lib-logo.pdf}
-  \caption*{Figure~1\quad This is an example for manually numbered figure,
-    which would not appear in the list of figures}
-  \label{tab:badfigure2}
-\end{figure}
-
-Now we consider a nonlinear programming which is confronted solely with
-maximizing a real-valued function with domain $\Real^n$.  Whether derivatives are
-available or not, the usual strategy is first to select a point in $\Real^n$ which
-is thought to be the most likely place where the maximum exists. If there is no
-information available on which to base such a selection, a point is chosen at
-random. From this first point an attempt is made to construct a sequence of
-points, each of which yields an improved objective function value over its
-predecessor. The next point to be added to the sequence is chosen by analyzing
-the behavior of the function at the previous points. This construction continues
-until some termination criterion is met. Methods based upon this strategy are
-called {\em ascent methods}, which can be classified as {\em direct methods},
-{\em gradient methods}, and {\em Hessian methods} according to the information
-about the behavior of objective function $f$. Direct methods require only that
-the function can be evaluated at each point. Gradient methods require the
-evaluation of first derivatives of $f$. Hessian methods require the evaluation
-of second derivatives. In fact, there is no superior method for all
-problems. The efficiency of a method is very much dependent upon the objective
-function.
-
-\subsection{Integer Programming}
-
-{\em Integer programming} is a special mathematical programming in which all of
-the variables are assumed to be only integer values. When there are not only
-integer variables but also conventional continuous variables, we call it {\em
-  mixed integer programming}. If all the variables are assumed either 0 or 1,
-then the problem is termed a {\em zero-one programming}. Although integer
-programming can be solved by an {\em exhaustive enumeration} theoretically, it
-is impractical to solve realistically sized integer programming problems. The
-most successful algorithm so far found to solve integer programming is called
-the {\em branch-and-bound enumeration} developed by Balas (1965) and Dakin
-(1965). The other technique to integer programming is the {\em cutting plane
-  method} developed by Gomory (1959).
-
-\hfill\textit{Uncertain Programming\/}\quad(\textsl{BaoDing Liu, 2006.2})
-
-\section*{References}
-\noindent{\itshape NOTE: These references are only for demonstration. They are
-  not real citations in the original text.}
-
-\begin{translationbib}
-\item Donald E. Knuth. The \TeX book. Addison-Wesley, 1984. ISBN: 0-201-13448-9
-\item Paul W. Abrahams, Karl Berry and Kathryn A. Hargreaves. \TeX\ for the
-  Impatient. Addison-Wesley, 1990. ISBN: 0-201-51375-7
-\item David Salomon. The advanced \TeX book.  New York : Springer, 1995. ISBN:0-387-94556-3
-\end{translationbib}
-
-\chapter{外文资料的调研阅读报告或书面翻译}
+\chapter{外文资料的书面翻译}
 
 \title{英文资料的中文标题}
 
-{\heiti 摘要：} 本章为外文资料翻译内容。如果有摘要可以直接写上来，这部分好像没有
-明确的规定。
-
-\section{单目标规划}
-北冥有鱼，其名为鲲。鲲之大，不知其几千里也。化而为鸟，其名为鹏。鹏之背，不知其几
-千里也。怒而飞，其翼若垂天之云。是鸟也，海运则将徙于南冥。南冥者，天池也。
-\begin{equation}\tag*{(123)}
- p(y|\mathbf{x}) = \frac{p(\mathbf{x},y)}{p(\mathbf{x})}=
-\frac{p(\mathbf{x}|y)p(y)}{p(\mathbf{x})}
-\end{equation}
-
-吾生也有涯，而知也无涯。以有涯随无涯，殆已！已而为知者，殆而已矣！为善无近名，为
-恶无近刑，缘督以为经，可以保身，可以全生，可以养亲，可以尽年。
-
-\subsection{线性规划}
-庖丁为文惠君解牛，手之所触，肩之所倚，足之所履，膝之所倚，砉然响然，奏刀騞然，莫
-不中音，合于桑林之舞，乃中经首之会。
-\begin{table}[ht]
-\centering
-  \centering
-  \caption*{表~1\hskip1em 这是手动编号但不出现在索引中的一个表格例子}
-  \label{tab:badtabular3}
-  \begin{tabular}[c]{|m{1.5cm}|c|c|c|c|c|c|}\hline
-    \multicolumn{2}{|c|}{Network Topology} & \# of nodes &
-    \multicolumn{3}{c|}{\# of clients} & Server \\\hline
-    GT-ITM & Waxman Transit-Stub & 600 &
-    \multirow{2}{2em}{2\%}&
-    \multirow{2}{2em}{10\%}&
-    \multirow{2}{2em}{50\%}&
-    \multirow{2}{1.2in}{Max. Connectivity}\\\cline{1-3}
-    \multicolumn{2}{|c|}{Inet-2.1} & 6000 & & & &\\\hline
-    \multirow{2}{1.5cm}{Xue} & Rui  & Ni &\multicolumn{4}{c|}{\multirow{2}*{\thuthesis}}\\\cline{2-3}
-    & \multicolumn{2}{c|}{ABCDEF} &\multicolumn{4}{c|}{} \\\hline
-\end{tabular}
-\end{table}
-
-文惠君曰：“嘻，善哉！技盖至此乎？”庖丁释刀对曰：“臣之所好者道也，进乎技矣。始臣之
-解牛之时，所见无非全牛者；三年之后，未尝见全牛也；方今之时，臣以神遇而不以目视，
-官知止而神欲行。依乎天理，批大郤，导大窾，因其固然。技经肯綮之未尝，而况大坬乎！
-良庖岁更刀，割也；族庖月更刀，折也；今臣之刀十九年矣，所解数千牛矣，而刀刃若新发
-于硎。彼节者有间而刀刃者无厚，以无厚入有间，恢恢乎其于游刃必有余地矣。是以十九年
-而刀刃若新发于硎。虽然，每至于族，吾见其难为，怵然为戒，视为止，行为迟，动刀甚微，
-謋然已解，如土委地。提刀而立，为之而四顾，为之踌躇满志，善刀而藏之。”
-
-文惠君曰：“善哉！吾闻庖丁之言，得养生焉。”
+{\heiti 摘要：} 大规模分布式训练需要大量的通信带宽用于梯度交换，这限制了多节点训练的可扩展性，并且需要昂贵的高带宽网络基础设施。随着移动设备上的分布式训练(联合学习)的出现，情况变得更加糟糕，这种训练具有更高的延迟、更低的吞吐量和间歇性的不良连接。本文发现分布式SGD中99.9\%的梯度交换是冗余的，并提出深度梯度压缩(DGC)来大大降低通信带宽。为了在压缩过程中保持准确率，DGC采用了四种方法:动量修正、局部梯度修剪、动量因子掩蔽和预训练。我们已经将深度梯度压缩应用于图像分类、语音识别和语言模型，使用的数据集包括Cifar10、ImageNet、Penn Treebank和Librispeech Corpus。在这些场景下，深度梯度压缩实现了从270$\times$到600$\times$的梯度压缩比而不损失精度，将ResNet--50的梯度大小从97 MB削减到0.35 MB，对于DeepSpeech 从488 MB削减到0.74 MB，深度梯度压缩使得在廉价的1 Gbps以太网上进行大规模分布式训练成为可能，并方便了移动设备上的分布式训练。
 
 
-\subsection{非线性规划}
-孔子与柳下季为友，柳下季之弟名曰盗跖。盗跖从卒九千人，横行天下，侵暴诸侯。穴室枢
-户，驱人牛马，取人妇女。贪得忘亲，不顾父母兄弟，不祭先祖。所过之邑，大国守城，小
-国入保，万民苦之。孔子谓柳下季曰：“夫为人父者，必能诏其子；为人兄者，必能教其弟。
-若父不能诏其子，兄不能教其弟，则无贵父子兄弟之亲矣。今先生，世之才士也，弟为盗
-跖，为天下害，而弗能教也，丘窃为先生羞之。丘请为先生往说之。”
-\begin{figure}[h]
-  \centering
-  \includegraphics{thu-whole-logo.pdf}
-  \caption*{图~1\hskip1em 这是手动编号但不出现索引中的图片的例子}
-  \label{tab:badfigure3}
-\end{figure}
+\section{引言}
+大规模分布式训练提高了更深和更大模型训练的生产效率。同步随机梯度下降（SGD）广泛用于分布式训练。通过增加训练节点的数量和利用数据并行性，可以显著减少对相同大小的训练数据的前向—反向传播的总计算时间。然而，梯度交换成本很高，这使计算时间的节省相形见绌，特别是对于计算与通信比例低的循环神经网络(RNN)。因此，网络带宽成为扩大分布式训练的一个重要瓶颈。当在移动设备上执行分布式训练时，这种带宽问题变得更加严重，例如联合学习。由于更好的隐私和更好的个性化，移动设备上的训练很有吸引力，但一个关键问题是，这些移动设备的网络带宽更低，网络时断时续，移动数据计划昂贵。
 
-柳下季曰：“先生言为人父者必能诏其子，为人兄者必能教其弟，若子不听父之诏，弟不受
-兄之教，虽今先生之辩，将奈之何哉？且跖之为人也，心如涌泉，意如飘风，强足以距敌，
-辩足以饰非。顺其心则喜，逆其心则怒，易辱人以言。先生必无往。”
+深度梯度压缩(DGC)通过压缩梯度来解决通信带宽问题，如图1所示。为了确保不损失精度，DGC在梯度稀疏化的基础上采用动量修正和局部梯度裁剪来保持模型性能。DGC还使用动量因子掩蔽和预训练来克服通信减少而造成的数据过时问题。
 
-孔子不听，颜回为驭，子贡为右，往见盗跖。
+我们根据经验验证了深度梯度压缩在多种任务、模型和数据集上的应用:CNN用于图像分类(使用Cifar10和ImageNet)，RNN用于语言模型(使用Librispeech Corpus)和语音识别(使用Librispeech Corpus)。这些实验表明，梯度可以压缩到600倍，而不损失精度，这比以前的工作高一个数量级。
 
-\subsection{整数规划}
-盗跖乃方休卒徒大山之阳，脍人肝而餔之。孔子下车而前，见谒者曰：“鲁人孔丘，闻将军
-高义，敬再拜谒者。”谒者入通。盗跖闻之大怒，目如明星，发上指冠，曰：“此夫鲁国之
-巧伪人孔丘非邪？为我告之：尔作言造语，妄称文、武，冠枝木之冠，带死牛之胁，多辞缪
-说，不耕而食，不织而衣，摇唇鼓舌，擅生是非，以迷天下之主，使天下学士不反其本，妄
-作孝弟，而侥幸于封侯富贵者也。子之罪大极重，疾走归！不然，我将以子肝益昼餔之膳。”
+\section{相关工作}
+研究人员提出了许多方法来克服分布式训练中的通信瓶颈。例如，一旦节点完成反向传播，异步SGD通过移除梯度同步和立即更新参数来加速训练。梯度量化和稀疏化以减少通信数据大小也被广泛研究。
 
+（格式问题：梯度量化）将梯度量化为低精度值可以降低通信带宽。Seide等人提出了1比特SGD来减小梯度传输数据大小，并在传统语音应用中实现了10倍的加速。Alistarh等人提出了另一种称为QSGD的方法，该方法对模型精度和梯度精度之间进行平衡。与QSGD相似，Wen等人开发了使用3级梯度的TernGrad。这两项工作都证明了量化训练的收敛性，尽管TernGrad只检测了CNN，而QSGD只检测了RNN的训练损失。也有人试图量化整个模型，包括梯度。DoReFa--Net使用1比特权重和2比特梯度。
 
-\chapter{其它附录}
-前面两个附录主要是给本科生做例子。其它附录的内容可以放到这里，当然如果你愿意，可
-以把这部分也放到独立的文件中，然后将其 \cs{input} 到主文件中。
+（格式问题：梯度稀疏化）Strom提出了阈值量化用来只发送大于预定常数阈值的梯度。然而，这个门槛在实践中很难选择。因此，Dryden等人(2016年)分别选择了固定比例的正梯度和负梯度更新，Aji与Heafield提出梯度下降，以基于绝对值的单一阈值来稀疏梯度。为了保持收敛速度，梯度下降需要增加层归一化。梯度下降节省了99\%的梯度交换，同时导致机器翻译任务中BLEU分数损失0.3\%。同时，Chen等人提出根据局部梯度活动自动调整压缩率，对于全连通层，压缩率约为200倍，对于卷积层，压缩率约为40倍，而在ImageNet数据集上，top--1准确率的下降基本可以忽略不计。
+
+与之前的工作相比，DGC将整个模型的梯度压缩比提高到600倍（所有层的压缩比相同）。DGC不需要额外的层正则化，因此不需要改变模型结构。最重要的是，深度梯度压缩不会导致精度损失。
+
+\section{深度梯度压缩}
+
+\subsection{梯度稀疏化}
+我们通过只发送重要的梯度(稀疏更新)来减少通信带宽。我们使用基于梯度绝对值的简单启发式算法:仅传输大于阈值的梯度。为了避免丢失信息，我们在本地积累其余的梯度。最终，这些梯度变得足够大，可以传输。因此，我们立即发送大梯度，但最终会发送所有梯度，如算法1所示。$encode()$函数包含32位非零梯度值和16位游程长度。我们的关电视，局部梯度累积相当于随着时间的推移增加批大小（batch size）。令$F(w)$为我们想要优化的损失函数。同步分布式SGD通过总共N个训练节点执行以下更新:
+
+其中$\chi$是训练数据集，$w$是网络的权重，$f(x,w)$是根据样本$x$计算的损失，$x$从$\chi$中采样，$\eta$是学习率，$N$是训练节点的数量，对于$1 \leq k \le N$的$B_k$ 是一个在第$t$轮迭代时从$\chi$中采样的长为$N$的迷你批次（mini batch）序列，每个大小为$b$。
+考虑展开后的权重$w$中第$i$个位置的权重$w^{(i)}$。经过$T$轮迭代后，我们有：
+
+等式2表明，局部梯度累积可以被认为是将批大小从$Nb$增加到$NbT$（$\tau$上的第二次求和），其中$T$是发送$w^{(i)}$梯度的两次迭代之间的\textit{稀疏更新间隔}的长度。学习率缩放是处理大型迷你批次的常用技术。学习速率$\eta T$和批大小$NbT$中的T被抵消，在等式2中自动满足。
+
+\subsection{提高局部梯度累计}
+如果不注意的话，当稀疏度非常高时，稀疏更新将极大地影响收敛。例如，算法1对Cifar10数据集造成了超过1.0\%的准确率损失，如图3(a)所示。我们发现动量修正和局部梯度修剪可以缓解这个问题。
+
+（格式问题：动量修正）动量SGD被广泛用于代替朴素SGD。然而，算法1并不直接应用于带有动量项的SGD，因为它忽略了稀疏更新间隔之间的折扣因子。
+
+随后是在N个训练节点上使用朴素SGD的分布式训练，
+
+其中$m$是动量，$N$是训练节点的数量，并且（公式！！）。考虑展开后的权重$w$中的第$i$个位置的权重$w^{(i)}$。在经过$T$轮迭代之后，权重$w^{(i)}$的变化如下所示:
+
+如果具有动量的SGD直接应用于稀疏梯度场景(算法1中的第15行)，更新规则不再等同于等式3，等式3变为:
+
+其中第一项是训练节点$k$上的局部梯度累积。一旦累计结果$v_{k,t}$大于阈值，它将向$sparse()$函数传递硬阈值（hard thresholding），并在第二项中被编码并通过网络发送。类似于算法1中的第12行，累加结果$v_{k,t}$被$sparse()$函数中的掩码清除。稀疏更新间隔$T$之后权重值$w^{(i)}$的变化变成，
+
+与等式4相比，等式6中累积折扣因子（公式！）的消失导致收敛性能的损失。如图2(a)所示，等式4实现了从点A到点B的优化，但是有了局部梯度累积，等式4转到点c。当梯度稀疏度较高时，更新间隔$T$显著增加，因此显著的副作用将损害模型性能。为了避免这个错误，我们需要在公式5的基础上进行动量修正，以确保稀疏更新等同于公式3中的密集更新。
+
+如果我们把方程3中的速度$u_t$看作“梯度”，方程3的第二项可以被认为是“梯度”$u_t$的朴素SGD。在第3.1节中，局部梯度累积被证明对朴素的SGD是有效的。因此，我们可以在局部累加速度$u_t$，而不是实际的梯度$\nabla_{k,t}$，来将等式5迁移到等式3:
+
+其中前两项是校正的局部梯度累积和累积结果$v_{k,t}$，它们倍用于随后的稀疏化和通信。通过局部累积的这一简单变化，我们可以从等式7推导出等式4中累积折扣因子（公式！），如图2(b)所示。
+
+我们称这种迁移为\textit{动量修正}。这是对更新公式的一个调整，不会产生任何超参数。除了朴素的动量SGD之外，我们还在附录B中考察了内斯特罗夫动量SGD，它类似于动量SGD。
+
+（格式问题：局部梯度裁剪）梯度裁剪被广泛采用以避免爆炸梯度问题。 Pascanu等人提出的方法只要其L2范数的总和超过阈值，就重新调整梯度。 通常在来自所有节点的梯度聚合之后执行该步骤。 因为我们独立地在每个节点上的迭代上累积梯度，所以我们在将当前梯度$G_t$添加到先前累积（算法1中的$G_{t-1}$）之前在本地执行梯度裁剪。 如附录C中所述，如果所有$N$个节点具有相同的梯度分布，我们就将阈值缩放$N^{-1/2}$，即当前节点的全局阈值的分数。 在实践中，我们发现局部梯度裁剪的行为与训练中的朴素梯度裁剪非常相似，这表明我们的假设在实际数据中可能是有效的。
+
+正如我们将在第4节中看到的那样，动量校正和局部梯度裁剪有助于将AN4语料库的单词错误率从14.1％降低到12.9％，而训练曲线更接近动量SGD。
+
+\subsection{克服数据过时的影响}
+因为我们延迟了小梯度的更新，当这些更新发生时，它们就过时了。在我们的实验中，当梯度稀疏度为99.9\%时，大多数参数每600到1000次迭代更新一次，这与每个epoch的迭代次数相比而言相当长。数据过时效应会减慢收敛速度并降低模型性能。我们通过动量因子掩蔽和预训练来缓解较少数据过时效应。
+
+（格式问题：动量因子掩蔽）Mitliagkas等人讨论了异步导致的过时问题，并将其归因于一个被描述为\textit{隐式动量}的术语。受他们工作的启发，我们引入动量因子掩蔽，以缓解数据过时性。我们没有像Mitliagkas等人所建议的那样搜索新的动量系数，而是简单地对累积梯度$v_{k,t}$和等式7中的动量因子$u_{k,t}$应用相同的掩码:
+
+这个掩码阻止了延迟梯度的动量，防止了过时的动量将权重带向错误的方向。
+
+（格式问题：预训练）在训练的早期阶段，网络变化迅速，梯度更加多样和积极。稀疏梯度限制了模型的变化范围，从而延长了网络剧烈变化的周期。同时，在被选择用于下一次更新之前，来自早期阶段的剩余的绝对值较大的梯度被累积，因此它们可能超过最新梯度并误导优化方向。大规模的迷你批次训练中引入的\textit{预训练}方法对此很有帮助。在预训练阶段，我们使用比较不积极的学习速率来降低训练开始时神经网络的变化速度，并且使用比较不积极的梯度稀疏性来减少被延迟的极端梯度的数量。为了帮助训练适应较大稀疏度的梯度，我们不是在前几个时期线性增加学习率，而是指数地将梯度稀疏度从相对较小的值增加到最终值。
+
+如表1所示，动量修正和局部梯度修剪改善了局部梯度积累，而动量因子掩蔽和热身训练减轻了数据过时效应。除了梯度稀疏化和局部梯度累积之外，这四种技术组成了深度梯度压缩(附录D中的伪代码)，并有助于在保持精度的同时提高梯度压缩比。
+
+\section{实验}
+\subsection{实验设置}
+我们在三种机器学习任务上验证了我们的方法:Cifar10和ImageNet上的图像分类，Penn Treebank数据集上的语言模型，AN4和Librispeech语料库上的语音识别。深度梯度压缩引入的唯一超参数是预训练策略。在所有与DGC相关的实验中，预热阶段的稀疏度分别为:75\%、93.75\%、98.4375\%、99.6\%、99.9\%(指数增长至99.9\%)。我们通过梯度压缩比例评估网络带宽的降低情况如下:
+
+其中$G^k$是在训练节点k上计算的梯度。
+
+（格式：图像分类）我们研究了Cifar10上的ResNet--110，ImageNet上的AlexNet和ResNet--50。Cifar10由10个类中的50，000个训练图像和10，000个验证图像组成，而ImageNet包含1000个类中的100多万个训练图像和50，000个验证图像。我们按照Gross 和 Wilber提出的训练方法，使用动量SGD进行模型训练。DGC的预训练阶段是Cifar10的164个epoch中的4个epoch，以及ImageNet数据集的90个epoch中的4个epoch。
+
+（格式：语言模型）Peen Treebank语料库(PTB)数据集由923，000个训练、73，000个验证和82，000个测试词组成。我们选择的词汇与Mikolov等人选择的词汇相同。我们采用每层1500个隐藏单元的2层LSTM语言模型架构，按照Inan等人的建议，结合编码器和解码器的权重，并使用带有梯度修剪的\textit{朴素SGD}，而当验证损失没有改善时，将学习率下降。预训练阶段是40个epoch中的1个epoch。
+
+（格式：语音识别）AN4数据集包含948个训练和130个测试话语，而Librispeech语料库包含960小时的阅读语音。我们使用没有n-gram语言模型的DeepSpeech结构，这是一个遵循卷积层堆积的多层RNN。我们为AN4训练一个每层800个隐藏单位的5层LSTM，为LibriSpeech训练一个每层1200个隐藏单位的7层GRU，采用内斯特罗夫动量梯度和梯度修剪，同时学习率在每个epoch都进行减少。DGC的预训练阶段是80个epoch中的1个epoch。
+
+\subsection{结果与分析}
+我们首先测试图像分类任务中的深度梯度压缩。图3(a)和3(b)是Cifar10上有4个节点的ResNet--110的rop--1准确率和训练损失。梯度稀疏度为99.9\%(只有0.1\%非零元)。梯度丢弃的学习曲线由于梯度数据过时问题而比基线更差。使用动量校正(黄色)，学习曲线收敛速度稍快，精度更接近基线。通过动量因子掩蔽和预训练技术(蓝色)，消除了梯度过时问题，学习曲线接近基线。表2显示了详细的准确率。在使用深度梯度压缩时，ResNet--110的精度得以完全保持。
+
+当使用大规模数据集时，图3(c)和3(d)显示了当梯度稀疏度为99.9\%时ResNet--50的学习曲线，其精确度完全符合基线。我们观察到一个有趣的现象，稀疏梯度训练的top--1误差比相同训练损失的基线下降得更快。表3显示了AlexNet和ResNet--50在具有4个节点的ImageNet上的训练结果。我们在AlexNet上将梯度压缩比例与Terngrad 进行了比较。深度梯度压缩比Terngrad压缩好75倍，且不损失精度。对于ResNet--50，压缩比稍低(相比于AlexNet压缩597倍，ResNet—50只压缩了277倍)，精度略有提高。
+
+对于语言模型，图4显示了当梯度稀疏度为99.9\%时，用4个节点训练的语言模型的困惑度（perplexity）和训练损失。深度梯度压缩的训练损失与基线紧密匹配，验证集的困惑度也是如此。从表4中，深度梯度压缩将梯度压缩462倍，同时略微降低了困惑度。
+
+对于语音识别，图5显示了梯度稀疏度为99.9\%时，AN4数据集上5层LSTM的单词错误率(WER)和训练损失曲线。学习曲线显示了从深度梯度压缩技术中获得的与图像网络相同的改进。表4显示了LibriSpeech测试数据集上的字差错率(WER)性能，其中\textit{test-clean}包含干净的语音而\textit{test-other}包含噪声的语音。使用深度梯度压缩训练的模型在干净和有噪声的语音上即使梯度大小被压缩608倍，也能获得更好的识别能力。
+
+\section{系统分析与性能}
+实施DGC需要选择第k大梯度。给定99.9\%的目标稀疏率，我们需要在数百万个权重中选出最大的0.1\%。它的复杂度是$\Theta(n)$，其中n是梯度元素的数量。我们建议使用采样来减少第k大选择时间。我们只对0.1\%到1\%的梯度进行采样，并对样本进行第k大值选择，以估计整体的阈值。如果超过阈值的梯度数量远远超过预期，则根据已经选择的梯度计算精确的阈值。分层计算阈值显著减少了第k大选择时间。实际上，与网络通信时间相比，总的额外计算时间可以忽略不计，网络通信时间通常从几百毫秒到几秒，具体取决于网络带宽。
+
+我们使用Wen等人提出的性能模型来执行可扩展性分析，将单个训练节点上的轻量级分析与分析通信建模相结合。使用Allreduce通信模型，在最坏的情况下，稀疏数据的密度在每个聚集步骤都加倍。然而，即使考虑到这种影响，深度梯度压缩仍然显著减少了网络通信时间，如图6所示。
+
+图6显示了多节点训练相对于单节点训练的加速。传统的训练以1 Gbps以太网(图6(a))实现的加速比10 Gbps以太网(图6(b))要差得多。尽管如此，深度梯度压缩使使用1 Gbps以太网的训练能够与使用10 Gbps以太网的传统训练竞争。例如，在用64个节点训练AlexNet时，传统训练仅用10 Gbps以太网实现了约30倍的加速，而在DGC，仅用1 Gbps以太网就实现了40倍以上的加速。从图6(a)和图6(b)的比较来看，当模型的通信与计算比率较高且网络带宽较低时，深度梯度压缩的好处甚至更多。
