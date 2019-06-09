@@ -94,3 +94,98 @@
 我们使用Wen等人提出的性能模型来执行可扩展性分析，将单个训练节点上的轻量级分析与分析通信建模相结合。使用Allreduce通信模型，在最坏的情况下，稀疏数据的密度在每个聚集步骤都加倍。然而，即使考虑到这种影响，深度梯度压缩仍然显著减少了网络通信时间，如图6所示。
 
 图6显示了多节点训练相对于单节点训练的加速。传统的训练以1 Gbps以太网(图6(a))实现的加速比10 Gbps以太网(图6(b))要差得多。尽管如此，深度梯度压缩使使用1 Gbps以太网的训练能够与使用10 Gbps以太网的传统训练竞争。例如，在用64个节点训练AlexNet时，传统训练仅用10 Gbps以太网实现了约30倍的加速，而在DGC，仅用1 Gbps以太网就实现了40倍以上的加速。从图6(a)和图6(b)的比较来看，当模型的通信与计算比率较高且网络带宽较低时，深度梯度压缩的好处甚至更多。
+
+\section{结论}
+深度梯度压缩（DGC）可以将各种CNN和RNN的梯度压缩270--600倍。为了在不减慢收敛速度的情况下实现这种压缩，DGC采用动量校正、局部梯度修剪、动量因子掩蔽和预训练。我们进一步提出分层阈值选择来加速梯度稀疏化过程。深度梯度压缩减少了所需的通信带宽，并通过廉价的商用网络基础设施提高了分布式训练的可扩展性。
+
+\section{附录}
+\subsection{A 同步的分布式随机梯度下降}
+在实践中，每个训练节点对具有相同网络模型的训练数据集采样的不同批次执行前向--反向传播。 将来自所有节点的梯度结合起来以优化其模型。 通过该同步步骤，在训练期间不同节点上的模型总是相同的。 聚合步骤可以以两种方式实现。 一种方法是使用参数服务器作为中介，其在多个服务器之间存储参数。 当服务器等待来自所有节点的梯度时，节点将梯度发送到服务器。 发送所有梯度后，服务器会更新参数，然后所有节点都会从服务器中提取最新参数。 另一种方法是对所有节点之间的梯度执行Allreduce操作，并独立更新每个节点上的参数，如算法2和图7所示。在本文中，我们默认采用后一种方法。
+
+\subsection{B 使用Nesterov动量矫正的梯度稀疏化}
+Nesterov动量SGD的传统更新规则如下，
+
+其中$m$是动量，$N$是训练节点的数量，（公式！）。在动量校正之前，稀疏的更新规则如下，
+
+在动量校正与方程式7共享相同的方法后，它变为，
+
+\subsection{C 局部梯度裁剪}
+当使用梯度裁剪训练递归神经网络时，我们在将算法1中的当前梯度$G^k_t$添加到积累梯度$G^k_{t-1}$之前，要先在本地执行梯度裁剪。将梯度的L2范数$||G||_2$的起始阈值设为$thr_G$，并将局部梯度L2范数$||G^k||_2$的阈值设为$thr_{G^k}$。
+
+假设所有$N$个节点的梯度都以$\sigma^2$为方差独立同分布，则所有节点的梯度之和的方差为$N\sigma^2$，因此，
+
+因此，我们将阈值乘以$N^{-1/2}$，即当前节点的全局阈值的分数，
+
+\subsection{D 深度梯度压缩算法}
+\begin{minipage}[t]{.50\textwidth}
+  \begin{algorithm}[H] \small
+    \caption{{\small Deep Gradient Compression for vanilla momentum SGD on node $k$}}
+    \label{alg:smsgd}
+    \begin{algorithmic}[1]
+      \Require dataset $\chi$
+      \Require minibatch size $b$ per node
+      \Require momentum $m$
+      \Require the number of nodes $N$
+      \Require optimization function \emph{SGD}
+      \Require initial parameters $w = \{w[0], \cdots, w[M]\}$
+      \State $U^{k} \gets 0$, $V^{k} \gets 0$
+      \For{$t=0,1,\cdots$}
+      \State $G_{t}^{k} \gets 0$
+      \For{$i=1,\cdots,b$}
+      \State Sample data $x$ from $\chi$
+      \State $G_{t}^{k} \gets G_{t}^{k} + \frac{1}{Nb} \triangledown f \left(x;\theta_{t} \right) $
+      \EndFor
+                \If {Gradient Clipping}
+                \State $G_{t}^{k} \gets LocalGradientClipping(G_{t}^{k})$
+                \EndIf
+      \State $U_{t}^{k} \gets m \cdot U_{t-1}^{k} + G_{t}^{k}$
+      \State $V_{t}^{k} \gets V_{t-1}^{k} + U_{t}^{k}$
+      \For{$j=0, \cdots, M$}
+      \State $thr \gets s\%$ of $\left|V_{t}^{k}[j]\right|$
+      \State $ Mask \gets \left|V_{t}^{k}[j]\right| > thr$
+      \State $\widetilde{G}_{t}^{k}[j] \gets V_{t}^{k}[j] \odot Mask$
+      \State $V_{t}^{k}[j] \gets V_{t}^{k}[j] \odot \neg Mask$
+                \State $U_{t}^{k}[j] \gets U_{t}^{k}[j] \odot \neg Mask$
+      \EndFor
+      \State \emph{All-reduce}: $G_{t} \gets \sum_{k=1}^{N} encode(\widetilde{G}_{t}^{k})$
+      \State $\theta_{t+1} \gets \emph{SGD} \left(\theta_{t}, G_{t} \right)$
+      \EndFor
+    \end{algorithmic}
+  \end{algorithm}
+\end{minipage}
+\begin{minipage}[t]{.50\textwidth}
+  \begin{algorithm}[H] \small
+    \caption{{\small Deep Gradient Compression for Nesterov momentum SGD on node $k$}}
+    \label{alg:snsgd}
+    \begin{algorithmic}[1]
+      \Require dataset $\chi$
+      \Require minibatch size $b$ per node
+      \Require momentum $m$
+      \Require the number of nodes $N$
+      \Require optimization function \emph{SGD}
+      \Require initial parameters $w = \{w[0], \cdots, w[M]\}$
+      \State $U^{k} \gets 0$, $V^{k} \gets 0$
+      \For{$t=0,1,\cdots$}
+      \State $G^{k} \gets 0$
+      \For{$i=1,\cdots,b$}
+      \State Sample data $x$ from $\chi$
+      \State $G_{t}^{k} \gets G_{t}^{k} + \frac{1}{Nb} \triangledown f \left(x;\theta_{t} \right) $
+      \EndFor
+                \If {Gradient Clipping}
+                \State $G_{t}^{k} \gets LocalGradientClipping(G_{t}^{k})$
+                \EndIf
+      \State $U_{t}^{k} \gets m \cdot \left(U_{t-1}^{k} + G_{t}^{k} \right)$
+      \State $V_{t}^{k} \gets V_{t-1}^{k} + U_{t}^{k} + G_{t}^{k}$
+      \For{$j=0, \cdots, M$}
+      \State $thr \gets s\%$ of $\left|V_{t}^{k}[j]\right|$
+      \State $ Mask \gets \left|V_{t}^{k}[j]\right| > thr$
+      \State $\widetilde{G}_{t}^{k}[j] \gets V_{t}^{k}[j] \odot Mask$
+      \State $V_{t}^{k}[j] \gets V_{t}^{k}[j] \odot \neg Mask$
+                \State $U_{t}^{k}[j] \gets U_{t}^{k}[j] \odot \neg Mask$
+      \EndFor
+      \State \emph{All-reduce}: $G_{t} \gets \sum_{k=1}^{N} encode(\widetilde{G}_{t}^{k})$
+      \State $\theta_{t+1} \gets \emph{SGD} \left(\theta_{t}, G_{t} \right)$
+      \EndFor
+    \end{algorithmic}
+  \end{algorithm}
+\end{minipage}
