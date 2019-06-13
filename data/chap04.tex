@@ -88,7 +88,7 @@ SMPI代码与移植后的Gloo代码都已开源\footnote{SMPI的代码位于http
 
 我们也可以看到，在节点数相同时，SMPI的相对时间随着缓冲区长度的增加而明显减少，这说明本文设计的算法更适合参数较多的神经网络模型。由于一般只有参数较多的模型才需要进行分布式训练，所以本文的算法效果与设计初衷是相符合的。
 
-接下来，我们测试了SMPI Allreduce算法进行了详细分析。如图\ref{fig:breakdown-smpi-singlethread}，这是单线程的SMPI Allreduce算法中各部分的占用时间；如图\ref{fig:breakdown-smpi-multithread}，这是多线程的SMPI Allreduce算法中各部分的占用时间。测试所用的缓冲区大小为2 GB。
+接下来，我们对SMPI Allreduce算法进行了详细分析。如图\ref{fig:breakdown-smpi-singlethread}，这是单线程的SMPI Allreduce算法中各部分的占用时间；如图\ref{fig:breakdown-smpi-multithread}，这是多线程的SMPI Allreduce算法中各部分的占用时间。测试所用的缓冲区大小为2 GB。
 
 \begin{figure}[ht] % use float package if you want it here
     \centering
@@ -117,9 +117,9 @@ SMPI代码与移植后的Gloo代码都已开源\footnote{SMPI的代码位于http
     \label{fig:smpi-smartnic}
   \end{figure}
 
-由于硬件限制，目前只使用了两个节点进行测试。通过结果可以看出，普通模式与智能网卡模式的性能基本持平，但普通模式的性能略微好一些，这是因为目前只使用了两个节点，Allreduce算法只需要通信一轮，即使使用了智能网卡也无法得到降低延迟的益处；同时，由于在通信开始前，需要将稀疏矩阵显示地由主机端发送至网卡，并在通信结束后由网卡发回主机，多了一些系统调用的额外开销，导致性能的略微降低。
+由于硬件限制，目前只使用了两个节点进行测试。通过结果可以看出，普通模式与智能网卡模式的性能基本持平，但普通模式的性能略微好一些，这是因为目前只使用了两个节点，Allreduce算法只需要通信一轮，即使使用了智能网卡也无法得到降低延迟的益处；同时，由于在通信开始前，需要将稀疏矩阵显式地由主机端发送至网卡，并在通信结束后由网卡发回主机，多了一些系统调用的额外开销，导致性能略微降低。
 
-由于只是用了两个节点，无法验证使用智能网卡可以降低延迟的特性，希望以后的工作可以将此实验完善。
+由于只使用了两个节点，无法验证使用智能网卡可以降低延迟的特性，希望以后的工作可以将此实验完善。
 
 \subsection{Pytorch 分布式训练性能测试}
 我们将自己的算法移植至Pytorch的后端---Gloo---进行神经网络的分布式训练，并与Pytorch自带的分布式训练进行对比。图\ref{fig:breakdown-pytorch}为分布式训练一个Batch的所用时间，其中相邻两个柱状图的左侧为原Pytorch的分布式训练所用时间，右侧为使用本文的算法优化后的Pytorch的分布式训练时间。蓝色部分表示Allreduce算法占用时间，橙色部分表示其余所有时间，包括正向传播算法、反向传播算法以及模型参数的更新等。
